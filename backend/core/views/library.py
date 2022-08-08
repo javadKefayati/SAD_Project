@@ -14,11 +14,17 @@ class CreateLibrary(APIView):
         data_types = [i[1] for i in DATA_TYPES]
         if data_type not in data_types:
             return Response(data={"message": "invalid data type"}, status=401)
+        if not name:
+            return Response(data={"message": "name is required"}, status=401)
+        
         library = Library()
         library.name = name
         library.data_type = data_type
         library.user = request.user
-        library.save()
+        try:
+            library.save()
+        except:
+            return Response(data={"message": "library with this name exists"}, status=401)
         return Response({"message": "successfully created library", "library": LibrarySerializer(library).data}, status=200)
 
 
@@ -30,3 +36,15 @@ class ViewLibraries(APIView):
         libraries = Library.objects.filter(user=user).all()
 
         return Response({"message": "success", "libraries": LibrarySerializer(libraries, many=True).data}, status=200)
+
+
+class DeleteLibrary(APIView):
+    http_method_names = ['delete']
+
+    def delete(self, request):
+        library = Library.objects.filter(name=request.data.get('name', None), user=request.user)
+        if not library:
+            return Response({"message": "library not found"}, status=401)
+        
+        library.delete()
+        return Response({"message": "successfully deleted library"}, status=200)
