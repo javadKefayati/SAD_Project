@@ -23,11 +23,19 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', rest_views.obtain_auth_token, name='api-token-auth'),
 
+
     path('api/auth/register', RegisterUser.as_view()),
+
 
     path('api/profile/edit', EditProfile.as_view()),
 
+
     path('api/library/create', CreateLibrary.as_view()),
-    path('api/library/list', ViewLibraries.as_view())
+    path('api/library/list', ViewLibraries.as_view()),
+
+    
+    path('api/file/upload', UploadFile.as_view()),
+
+    path('api/options/data-types', ViewDataTypes.as_view())
     
 ]

@@ -134,3 +134,6 @@ REST_FRAMEWORK = {
     ),
 
 }
+
+
+MEDIA_ROOT = "./media"
