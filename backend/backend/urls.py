@@ -25,5 +25,9 @@ urlpatterns = [
 
     path('api/auth/register', RegisterUser.as_view()),
 
-    path('api/library/create', CreateLibrary.as_view())
+    path('api/profile/edit', EditProfile.as_view()),
+
+    path('api/library/create', CreateLibrary.as_view()),
+    path('api/library/list', ViewLibraries.as_view())
+    
 ]
