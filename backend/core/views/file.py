@@ -2,7 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 
-from backend.core.models import File, Library
+from core.serializers import FileSerializer
+from core.models import File, Library
 
 class UploadFile(APIView):
     http_method_names = ['put']
@@ -11,7 +12,7 @@ class UploadFile(APIView):
     def put(self, request):
         file = request.data['file']
         owner = request.user
-        library = Library.objects.filter(user=owner, pk=request.data.get('library_id', 0)).get()
+        library = Library.objects.filter(user=owner, name=request.data.get('library', None))
         description = request.data.get('description', '')
         meta_data = request.data.get('meta_data', None)
         if not file:
@@ -22,8 +23,9 @@ class UploadFile(APIView):
         file_object = File(
             file=file,
             owner=owner,
-            library=library,
+            library=library.get(),
             description=description,
             meta_data=meta_data    
         )
-        return Response({"message": "success", "file": file_object}, status=200)
+        file_object.save()
+        return Response({"message": "success", "file": FileSerializer(file_object).data}, status=200)
