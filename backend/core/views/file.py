@@ -1,3 +1,4 @@
+from dbm.ndbm import library
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
@@ -29,3 +30,13 @@ class UploadFile(APIView):
         )
         file_object.save()
         return Response({"message": "success", "file": FileSerializer(file_object).data}, status=200)
+
+
+class ViewFiles(APIView):
+    http_method_names = ['get']
+
+    def get(self, request, name):
+        library = Library.objects.prefetch_related().filter(user=request.user, name=name)
+        if not library:
+            return Response({"message": "library not found"}, status=200)
+        return Response(FileSerializer(library.files, many=True).data, status=200)

@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/library/create', CreateLibrary.as_view()),
     path('api/library/list', ViewLibraries.as_view()),
     path('api/library/delete', DeleteLibrary.as_view()),
+    path('api/library/<name>/files', ViewFiles.as_view()),
 
     
     path('api/file/upload', UploadFile.as_view()),

@@ -21,6 +21,7 @@ class Library(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     data_type = models.CharField(max_length=1, choices=DATA_TYPES)
+    
 
     class Meta:
         constraints = [
