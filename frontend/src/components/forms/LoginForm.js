@@ -2,7 +2,7 @@ import { Button, Card, CardContent, Divider, Stack, TextField, Typography } from
 import {LoadingButton} from '@mui/lab'
 import * as React from 'react'
 
-export default function LoginForm({loginClicked, registerClicked, loading}) {
+export default function LoginForm({loginClicked, registerClicked, loading, error}) {
 
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
@@ -28,6 +28,12 @@ export default function LoginForm({loginClicked, registerClicked, loading}) {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
+                    <Typography
+                        color='error'
+                        sx={{mb: 2, textAlign: 'center'}}
+                    >
+                        { error }
+                    </Typography>
                     <LoadingButton
                         loading={loading}
                         variant="contained"

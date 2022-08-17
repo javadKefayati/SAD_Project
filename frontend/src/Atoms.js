@@ -1,8 +1,14 @@
+import {atom} from 'recoil'
+
 const AuthAtom = atom({
     key: 'AuthAtom',
-    default: {},
+    default: {
+        token: ''
+    },
 })
 
-export default {
+const atoms = {
     AuthAtom
 }
+
+export default atoms
