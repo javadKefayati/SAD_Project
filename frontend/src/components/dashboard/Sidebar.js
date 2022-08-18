@@ -6,11 +6,17 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import AddIcon from '@mui/icons-material/Add';
 
-export default function Sidebar() {
+export default function Sidebar({addLibraryClicked}) {
     return (
         <Stack sx={{py: 2}}>
             <Box sx={{px: 2}}>
-                <Button startIcon={<AddIcon />} variant='contained' size='large' sx={{borderRadius: 8}}>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant='contained'
+                    size='large'
+                    sx={{borderRadius: 8}}
+                    onClick={addLibraryClicked}
+                >
                     Add Library
                 </Button>
             </Box>
