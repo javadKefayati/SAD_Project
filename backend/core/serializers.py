@@ -7,10 +7,11 @@ from core.models import File, Library
 class LibrarySerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     data_type = serializers.CharField()
+    file_count = serializers.IntegerField()
 
     class Meta:
         model = Library
-        fields = ['name', 'data_type']
+        fields = ['name', 'data_type', 'file_count']
 
 
 class UserSerializer(serializers.ModelSerializer):

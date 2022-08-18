@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models.aggregates import Count
 
 from core.serializers import LibrarySerializer
 
@@ -33,7 +34,12 @@ class ViewLibraries(APIView):
 
     def get(self, request):
         user = request.user
-        libraries = Library.objects.filter(user=user).all()
+        libraries = Library.objects.annotate(file_count=Count('file')).filter(user=user)
+        selected_type = request.data.get('type')
+        data_types = [i[1] for i in DATA_TYPES]
+        if (selected_type in data_types):
+            libraries.filter(data_type=selected_type)
+        libraries = libraries.all()
 
         return Response({"message": "success", "libraries": LibrarySerializer(libraries, many=True).data}, status=200)
 

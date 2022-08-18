@@ -1,12 +1,30 @@
 import * as React from 'react';
 import Sidebar from '../components/dashboard/Sidebar';
-import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogContent, DialogTitle } from '@mui/material';
+import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogContent, DialogTitle, Grid } from '@mui/material';
 import AddLibraryForm from '../components/forms/AddLibraryForm';
+import authorizedAxios from '../components/authorizedAxios';
+import atoms from '../Atoms';
+import { useRecoilValue } from 'recoil';
+import urls from '../data/urls';
+import LibraryItem from '../components/dashboard/LibraryItem';
 
 const drawerWidth = 240;
 
-export default function ClippedDrawer() {
+export default function DashboardPage() {
     const [addLibraryOpen, setAddLibraryOpen] = React.useState(false)
+    const [libraries, setLibraries] = React.useState([])
+    const auth = useRecoilValue(atoms.AuthAtom)
+
+    React.useEffect(() => loadLibraries('all'), [])
+
+    const loadLibraries = (type) => {
+        authorizedAxios(auth).get(urls.listLibraries, {
+            params: { type: type }
+        }).then(res => {
+            setLibraries(res.data.libraries)
+            console.log(res.data.libraries)
+        }).catch(err => { })
+    }
 
     return (
         <>
@@ -29,12 +47,21 @@ export default function ClippedDrawer() {
                 >
                     <Toolbar />
                     <Box sx={{ overflow: 'auto' }}>
-                        <Sidebar addLibraryClicked={() => setAddLibraryOpen(true)}/>
+                        <Sidebar
+                            addLibraryClicked={() => setAddLibraryOpen(true)}
+                            listItemSelected={loadLibraries}
+                        />
                     </Box>
                 </Drawer>
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <Toolbar />
-                    Hello, World!
+                    <Grid container>
+                        {libraries.map(item =>
+                            <Grid item xs={3}>
+                                <LibraryItem name={item.name} fileCount={item.file_count} />
+                            </Grid>
+                        )}
+                    </Grid>
                 </Box>
             </Box>
             <Dialog
@@ -47,7 +74,7 @@ export default function ClippedDrawer() {
                     Add Library
                 </DialogTitle>
                 <DialogContent>
-                    <AddLibraryForm close={() => setAddLibraryOpen(false)}/>
+                    <AddLibraryForm close={() => setAddLibraryOpen(false)} />
                 </DialogContent>
             </Dialog>
         </>

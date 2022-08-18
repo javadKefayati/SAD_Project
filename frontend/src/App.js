@@ -5,7 +5,7 @@ import {
   Route,
   BrowserRouter as Router
 } from 'react-router-dom'
-import Dashboard from './pages/DashboardPage'
+import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { RecoilRoot } from 'recoil'
@@ -19,7 +19,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/home" element={<Dashboard />} />
+          <Route path="/home" element={<DashboardPage />} />
         </Routes>
       </Router>
     </RecoilRoot>
