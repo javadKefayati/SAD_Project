@@ -1,3 +1,6 @@
+cd frontend
+yarn install
+cd ../backend
 mkdir media
 pip install pip-requirements.txt
 python3 manage.py migrate
