@@ -5,13 +5,14 @@ from rest_framework import serializers
 from core.models import File, Library
 
 class LibrarySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     name = serializers.CharField()
     data_type = serializers.CharField()
-    file_count = serializers.IntegerField()
+    file_count = serializers.IntegerField(required=False, default=0)
 
     class Meta:
         model = Library
-        fields = ['name', 'data_type', 'file_count']
+        fields = ['id', 'name', 'data_type', 'file_count']
 
 
 class UserSerializer(serializers.ModelSerializer):

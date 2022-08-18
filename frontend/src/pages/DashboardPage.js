@@ -7,24 +7,36 @@ import atoms from '../Atoms';
 import { useRecoilValue } from 'recoil';
 import urls from '../data/urls';
 import LibraryItem from '../components/dashboard/LibraryItem';
+import styled from 'styled-components'
+import { unstable_styleFunctionSx } from '@mui/system';
+
 
 const drawerWidth = 240;
+
+const Image = styled('img')(unstable_styleFunctionSx)
 
 export default function DashboardPage() {
     const [addLibraryOpen, setAddLibraryOpen] = React.useState(false)
     const [libraries, setLibraries] = React.useState([])
+    const [type, setType] = React.useState('all')
     const auth = useRecoilValue(atoms.AuthAtom)
 
-    React.useEffect(() => loadLibraries('all'), [])
-
     const loadLibraries = (type) => {
+        setType(type)
         authorizedAxios(auth).get(urls.listLibraries, {
             params: { type: type }
         }).then(res => {
             setLibraries(res.data.libraries)
-            console.log(res.data.libraries)
         }).catch(err => { })
     }
+
+    const addNewLibrary = (library) => {
+        if (type === library.data_type || type === 'all') {
+            setLibraries([...libraries, library])
+        }
+    }
+
+    React.useEffect(() => loadLibraries('all'),[])
 
     return (
         <>
@@ -55,9 +67,39 @@ export default function DashboardPage() {
                 </Drawer>
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <Toolbar />
-                    <Grid container>
+                    {libraries.length === 0 &&
+                        <Box
+                            sx={{
+                                transform: 'translate(-20%, -50%)',
+                                top: '50%',
+                                left: '50%',
+                                position: 'absolute',
+                                color: '#aaaaaa',
+                                opacity: '0.5',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <Image
+                                src={"/icons/not-found.gif"}
+                                alt="404 not found"
+                                sx={{maxWidth: {
+                                    xs: '150px',
+                                    sm: '200px',
+                                    md: '300px',
+                                    lg: '400px'
+                                }}}
+                            />
+                            <Typography
+                                variant="h5"
+                                sx={{ color: '#4F5D73' }}
+                            >
+                                No libraries found
+                            </Typography>
+                        </Box>
+                    }
+                    <Grid container spacing={2}>
                         {libraries.map(item =>
-                            <Grid item xs={3}>
+                            <Grid item xs={3} key={item.id}>
                                 <LibraryItem name={item.name} fileCount={item.file_count} />
                             </Grid>
                         )}
@@ -74,7 +116,7 @@ export default function DashboardPage() {
                     Add Library
                 </DialogTitle>
                 <DialogContent>
-                    <AddLibraryForm close={() => setAddLibraryOpen(false)} />
+                    <AddLibraryForm close={() => setAddLibraryOpen(false)} libraryAdded={addNewLibrary}/>
                 </DialogContent>
             </Dialog>
         </>

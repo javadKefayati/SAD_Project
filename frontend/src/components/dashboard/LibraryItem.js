@@ -1,4 +1,4 @@
-import { ButtonBase, Card, CardContent, CardMedia, Typography } from '@mui/material'
+import { ButtonBase, Card, CardContent, Typography } from '@mui/material'
 import * as React from 'react'
 
 export default function LibraryItem({ name, fileCount }) {

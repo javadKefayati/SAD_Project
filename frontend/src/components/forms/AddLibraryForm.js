@@ -10,7 +10,7 @@ import atoms from '../../Atoms'
 import { useRecoilValue } from 'recoil';
 import * as React from 'react'
 
-export default function AddLibraryForm({close}) {
+export default function AddLibraryForm({close, libraryAdded}) {
     const [name, setName] = React.useState('')
     const [type, setType] = React.useState('image')
     const [error, setError] = React.useState('')
@@ -32,6 +32,7 @@ export default function AddLibraryForm({close}) {
             data_type: type
         }).then(res => {
             setLoading(false)
+            libraryAdded(res.data.library)
             close()
         }).catch(err => {
             setError(err.response.data.message)
