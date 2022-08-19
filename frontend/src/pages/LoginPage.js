@@ -6,6 +6,7 @@ import urls from '../data/urls'
 import { useNavigate } from 'react-router-dom'
 import {useRecoilState} from 'recoil'
 import atoms from '../Atoms'
+import authorizedAxios from '../components/authorizedAxios'
 
 export default function LoginPage() {
 
@@ -22,9 +23,12 @@ export default function LoginPage() {
             password: password
         }).then(
             res => {
-                setLoading(false)
-                setAuth({...auth, token: res.data.token})
-                navigate('/home')
+                const token = res.data.token
+                authorizedAxios({token: token}).get(urls.getMe).then(res => {
+                    setLoading(false)
+                    setAuth({...auth, token: token, user: res.data})
+                    navigate('/home')
+                })
             }
         ).catch(
             err => {

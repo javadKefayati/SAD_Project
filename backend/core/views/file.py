@@ -41,4 +41,4 @@ class ViewFiles(APIView):
         if not library:
             return Response({"message": "library not found"}, status=404)
         library = library.get()
-        return Response(FileSerializer(library.file_set, many=True).data, status=200)
+        return Response(FileSerializer(library.file_set, many=True, context={'request': request}).data, status=200)

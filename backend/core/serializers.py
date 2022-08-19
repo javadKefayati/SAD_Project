@@ -15,13 +15,14 @@ class LibrarySerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     username = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name']
+        fields = ['id', 'username', 'first_name', 'last_name']
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -31,6 +32,7 @@ class FileSerializer(serializers.ModelSerializer):
     size = serializers.SerializerMethodField('get_file_size')
     library = serializers.SerializerMethodField('get_library')
     owner = serializers.SerializerMethodField('get_owner')
+    can_edit = serializers.SerializerMethodField('get_can_edit')
     description = serializers.CharField()
     meta_data = serializers.JSONField()
 
@@ -62,7 +64,13 @@ class FileSerializer(serializers.ModelSerializer):
         elif size < 9000000:
             return f"{(size / 100000):0.2f} GB"
     
+    def get_can_edit(self, file: File):
+        user = self.context.get('request', None).user
+        if user:
+            return user.id == file.owner.id
+        return False
+    
 
     class Meta:
         model = User
-        fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'description', 'meta_data']
+        fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'can_edit', 'description', 'meta_data']

@@ -37,3 +37,10 @@ class EditProfile(APIView):
             user.last_name = last_name
         user.save()
         return Response(data={"message": "saved successfully", "user": UserSerializer(user).data}, status=200)
+
+class GetMe(APIView):
+    http_method_names = ['get']
+
+    def get(self, request):
+        user = request.user
+        return Response(UserSerializer(user).data, status=200)

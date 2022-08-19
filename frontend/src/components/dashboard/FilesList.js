@@ -26,7 +26,7 @@ export default function FilesList() {
     return (
         <Grid container>
             {files.map(item =>
-                <Grid item xs={6} md={4} xl={3}>
+                <Grid key={item.id} item xs={6} md={4} xl={3}>
                     <FileItem {...item} />
                 </Grid>
             )}
