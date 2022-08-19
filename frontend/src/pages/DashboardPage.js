@@ -6,8 +6,7 @@ import authorizedAxios from '../components/authorizedAxios';
 import atoms from '../Atoms';
 import { useRecoilValue } from 'recoil';
 import urls from '../data/urls';
-import LibrariesList from '../components/dashboard/LibrariesList';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 
 const drawerWidth = 240;
@@ -17,6 +16,7 @@ export default function DashboardPage() {
     const [libraries, setLibraries] = React.useState([])
     const [type, setType] = React.useState('all')
     const auth = useRecoilValue(atoms.AuthAtom)
+    const navigate = useNavigate()
 
     const loadLibraries = (type) => {
         setType(type)
@@ -25,6 +25,11 @@ export default function DashboardPage() {
         }).then(res => {
             setLibraries(res.data.libraries)
         }).catch(err => { })
+    }
+
+    const showLibraries = (type) => {
+        navigate('/home')
+        loadLibraries(type)
     }
 
     const addNewLibrary = (library) => {
@@ -42,7 +47,7 @@ export default function DashboardPage() {
                 <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                     <Toolbar>
                         <Typography variant="h6" noWrap component="div">
-                            App Name
+                            Share Drive
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -58,11 +63,11 @@ export default function DashboardPage() {
                     <Box sx={{ overflow: 'auto' }}>
                         <Sidebar
                             addLibraryClicked={() => setAddLibraryOpen(true)}
-                            listItemSelected={loadLibraries}
+                            listItemSelected={showLibraries}
                         />
                     </Box>
                 </Drawer>
-                <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                <Box component="main" sx={{ flexGrow: 1}}>
                     <Toolbar />
                     <Outlet context={[libraries, setLibraries]}/>
                 </Box>

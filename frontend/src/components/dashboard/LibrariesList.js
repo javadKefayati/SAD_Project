@@ -43,7 +43,7 @@ export default function LibrariesList() {
                     </Typography>
                 </Box>
             }
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{p: 2}}>
                 {libraries.map(item =>
                     <Grid item xs={3} key={item.id}>
                         <LibraryItem name={item.name} fileCount={item.file_count} />
