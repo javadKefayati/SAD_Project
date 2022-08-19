@@ -1,4 +1,5 @@
 from dbm.ndbm import library
+from multiprocessing import context
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
@@ -29,7 +30,7 @@ class UploadFile(APIView):
             meta_data=meta_data
         )
         file_object.save()
-        return Response({"message": "success", "file": FileSerializer(file_object).data}, status=200)
+        return Response({"message": "success", "file": FileSerializer(file_object, context={'request': request}).data}, status=200)
 
 
 class ViewFiles(APIView):

@@ -5,6 +5,7 @@ const urls = {
     getMe: BASE_URL + "api/auth/get-me",
     createLibrary: BASE_URL + "api/library/create",
     listLibraries: BASE_URL + "api/library/list",
-    listFiles: BASE_URL + "api/library/<name>/files"
+    listFiles: BASE_URL + "api/library/<name>/files",
+    uploadFile: BASE_URL + "api/file/upload"
 }
 export default urls
