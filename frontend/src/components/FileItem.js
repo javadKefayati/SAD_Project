@@ -9,19 +9,18 @@ import { useRecoilValue } from 'recoil'
 
 export default function FileItem({ name, file, owner, description, size, can_edit }) {
     const auth = useRecoilValue(atoms.AuthAtom)
-    description = ''
     return (
         <Card variant="outlined">
             <CardContent>
                 <Stack>
                     <Typography variant='h6' sx={{ mb: 2 }}>
-                        {name.length > 35 ? name.substring(0, 31) + "..." : description}
+                        {name.length > 30 ? name.substring(0, 27) + "..." : description}
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: '#aaaaaa', flexGrow: 1, mb: 2 }}>
+                        {size}
                     </Typography>
                     <Typography variant='caption' sx={{ color: '#aaaaaa' }}>
                         {description.length > 35 ? description.substring(0, 31) + "..." : description}
-                    </Typography>
-                    <Typography variant='body2' sx={{ color: '#aaaaaa', flexGrow: 1 }}>
-                        {size}
                     </Typography>
                 </Stack>
             </CardContent>

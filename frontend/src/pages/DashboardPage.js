@@ -13,7 +13,8 @@ const drawerWidth = 240;
 
 export default function DashboardPage() {
     const [addLibraryOpen, setAddLibraryOpen] = React.useState(false)
-    const [libraries, setLibraries] = useRecoilState(atoms.LibraryAtom)
+    const [libraries, setLibraries] = React.useState([])
+    const [allLibraries, setAllLibraries] = useRecoilState(atoms.LibraryAtom)
     const [type, setType] = React.useState('all')
     const auth = useRecoilValue(atoms.AuthAtom)
     const navigate = useNavigate()
@@ -24,6 +25,8 @@ export default function DashboardPage() {
             params: { type: type }
         }).then(res => {
             setLibraries(res.data.libraries)
+            if(type === 'all')
+                setAllLibraries(res.data.libraries)
         }).catch(err => { })
     }
 

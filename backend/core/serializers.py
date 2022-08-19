@@ -59,10 +59,10 @@ class FileSerializer(serializers.ModelSerializer):
             return f"{size} Bytes"
         elif size < 90000:
             return f"{(size / 1000):0.2f} KB"
-        elif size < 900000:
-            return f"{(size / 10000):0.2f} MB"
-        elif size < 9000000:
-            return f"{(size / 100000):0.2f} GB"
+        elif size < 90000000:
+            return f"{(size / 1000000):0.2f} MB"
+        elif size < 90000000000:
+            return f"{(size / 1000000000):0.2f} GB"
     
     def get_can_edit(self, file: File):
         user = self.context.get('request', None).user

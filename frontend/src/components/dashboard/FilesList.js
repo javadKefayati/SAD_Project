@@ -26,6 +26,11 @@ export default function FilesList() {
         })
     }
 
+    const addNewFile = (file) => {
+        setFiles([...files, file])
+        setUploadFileOpen(false)
+    }
+
     React.useEffect(() => loadFiles(), [])
     return (
         <>
@@ -43,7 +48,7 @@ export default function FilesList() {
                     </Button>
                 </Toolbar>
             </AppBar>
-            <Grid container sx={{p: 2}}>
+            <Grid container sx={{p: 2}} spacing={2}>
                 {files.map(item =>
                     <Grid key={item.id} item xs={6} md={4} xl={3}>
                         <FileItem {...item} />
@@ -55,7 +60,7 @@ export default function FilesList() {
                     Upload File
                 </DialogTitle>
                 <DialogContent>
-                    <UploadFileForm library={libraryName}/>
+                    <UploadFileForm library={libraryName} submitted={addNewFile}/>
                 </DialogContent>
             </Dialog>
         </>
