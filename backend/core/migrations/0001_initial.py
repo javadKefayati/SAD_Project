@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='File',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(upload_to='files')),
+                ('file', models.FileField(upload_to='./media')),
                 ('description', models.CharField(max_length=100)),
                 ('meta_data', jsonfield.fields.JSONField()),
             ],

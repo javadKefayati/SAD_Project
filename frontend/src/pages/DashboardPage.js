@@ -1,19 +1,16 @@
 import * as React from 'react';
 import Sidebar from '../components/dashboard/Sidebar';
-import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogContent, DialogTitle, Grid } from '@mui/material';
+import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogContent, DialogTitle } from '@mui/material';
 import AddLibraryForm from '../components/forms/AddLibraryForm';
 import authorizedAxios from '../components/authorizedAxios';
 import atoms from '../Atoms';
 import { useRecoilValue } from 'recoil';
 import urls from '../data/urls';
-import LibraryItem from '../components/dashboard/LibraryItem';
-import styled from 'styled-components'
-import { unstable_styleFunctionSx } from '@mui/system';
+import LibrariesList from '../components/dashboard/LibrariesList';
+import { Outlet } from 'react-router-dom';
 
 
 const drawerWidth = 240;
-
-const Image = styled('img')(unstable_styleFunctionSx)
 
 export default function DashboardPage() {
     const [addLibraryOpen, setAddLibraryOpen] = React.useState(false)
@@ -67,43 +64,7 @@ export default function DashboardPage() {
                 </Drawer>
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <Toolbar />
-                    {libraries.length === 0 &&
-                        <Box
-                            sx={{
-                                transform: 'translate(-20%, -50%)',
-                                top: '50%',
-                                left: '50%',
-                                position: 'absolute',
-                                color: '#aaaaaa',
-                                opacity: '0.5',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Image
-                                src={"/icons/not-found.gif"}
-                                alt="404 not found"
-                                sx={{maxWidth: {
-                                    xs: '150px',
-                                    sm: '200px',
-                                    md: '300px',
-                                    lg: '400px'
-                                }}}
-                            />
-                            <Typography
-                                variant="h5"
-                                sx={{ color: '#4F5D73' }}
-                            >
-                                No libraries found
-                            </Typography>
-                        </Box>
-                    }
-                    <Grid container spacing={2}>
-                        {libraries.map(item =>
-                            <Grid item xs={3} key={item.id}>
-                                <LibraryItem name={item.name} fileCount={item.file_count} />
-                            </Grid>
-                        )}
-                    </Grid>
+                    <Outlet context={[libraries, setLibraries]}/>
                 </Box>
             </Box>
             <Dialog

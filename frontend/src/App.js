@@ -10,6 +10,9 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { RecoilRoot } from 'recoil'
 import RecoilNexus from "recoil-nexus";
+import LibrariesList from './components/dashboard/LibrariesList'
+import FilesList from './components/dashboard/FilesList'
+
 
 function App() {
   return (
@@ -19,7 +22,10 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/home" element={<DashboardPage />} />
+          <Route path="/" element={<DashboardPage />}>
+            <Route path="home" element={<LibrariesList />} />
+            <Route path="library/:libraryName" element={<FilesList />} />
+          </Route>
         </Routes>
       </Router>
     </RecoilRoot>

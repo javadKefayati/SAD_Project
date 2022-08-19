@@ -26,7 +26,7 @@ class UploadFile(APIView):
             owner=owner,
             library=library.get(),
             description=description,
-            meta_data=meta_data    
+            meta_data=meta_data
         )
         file_object.save()
         return Response({"message": "success", "file": FileSerializer(file_object).data}, status=200)
@@ -36,7 +36,9 @@ class ViewFiles(APIView):
     http_method_names = ['get']
 
     def get(self, request, name):
-        library = Library.objects.prefetch_related().filter(user=request.user, name=name)
+        #TODO: add pagination
+        library = Library.objects.prefetch_related('file_set').filter(user=request.user, name=name)
         if not library:
-            return Response({"message": "library not found"}, status=200)
-        return Response(FileSerializer(library.files, many=True).data, status=200)
+            return Response({"message": "library not found"}, status=404)
+        library = library.get()
+        return Response(FileSerializer(library.file_set, many=True).data, status=200)

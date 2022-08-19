@@ -1,4 +1,3 @@
-from dbm.ndbm import library
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -27,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     file = serializers.FileField()
+    name = serializers.SerializerMethodField('get_file_name')
     library = serializers.SerializerMethodField('get_library')
     owner = serializers.SerializerMethodField('get_owner')
     description = serializers.CharField()
@@ -43,8 +43,12 @@ class FileSerializer(serializers.ModelSerializer):
         if hasattr(file, 'owner'):
             return UserSerializer(file.owner).data
         return None
+
+    @staticmethod
+    def get_file_name(file: File):
+        return file.file.name.split("/")[-1]
     
 
     class Meta:
         model = User
-        fields = ['file', 'library', 'owner', 'description', 'meta_data']
+        fields = ['file', 'name', 'library', 'owner', 'description', 'meta_data']
