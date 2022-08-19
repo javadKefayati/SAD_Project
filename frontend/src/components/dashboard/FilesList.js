@@ -4,6 +4,8 @@ import urls from '../../data/urls'
 import authorizedAxios from '../authorizedAxios'
 import { useRecoilValue } from 'recoil'
 import atoms from '../../Atoms'
+import FileItem from '../FileItem'
+import { Grid } from '@mui/material'
 
 export default function FilesList() {
     const { libraryName } = useParams()
@@ -15,7 +17,6 @@ export default function FilesList() {
         authorizedAxios(auth).get(url).then(res => {
             //TODO: add pagination
             setFiles(res.data)
-            console.log(res.data)
         }).catch(err => {
             //TODO: load 404 page
         })
@@ -23,8 +24,12 @@ export default function FilesList() {
 
     React.useEffect(() => loadFiles(), [])
     return (
-        <>
-            {files.map(item => <p key={item.name}>{item.name}</p>)}
-        </>
+        <Grid container>
+            {files.map(item =>
+                <Grid item xs={6} md={4} xl={3}>
+                    <FileItem {...item} />
+                </Grid>
+            )}
+        </Grid>
     )
 }

@@ -25,8 +25,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     file = serializers.FileField()
     name = serializers.SerializerMethodField('get_file_name')
+    size = serializers.SerializerMethodField('get_file_size')
     library = serializers.SerializerMethodField('get_library')
     owner = serializers.SerializerMethodField('get_owner')
     description = serializers.CharField()
@@ -48,7 +50,19 @@ class FileSerializer(serializers.ModelSerializer):
     def get_file_name(file: File):
         return file.file.name.split("/")[-1]
     
+    @staticmethod
+    def get_file_size(file: File):
+        size = file.file.size
+        if size < 9000:
+            return f"{size} Bytes"
+        elif size < 90000:
+            return f"{(size / 1000):0.2f} KB"
+        elif size < 900000:
+            return f"{(size / 10000):0.2f} MB"
+        elif size < 9000000:
+            return f"{(size / 100000):0.2f} GB"
+    
 
     class Meta:
         model = User
-        fields = ['file', 'name', 'library', 'owner', 'description', 'meta_data']
+        fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'description', 'meta_data']
