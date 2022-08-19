@@ -5,13 +5,15 @@ import authorizedAxios from '../authorizedAxios'
 import { useRecoilValue } from 'recoil'
 import atoms from '../../Atoms'
 import FileItem from '../FileItem'
-import { AppBar, Button, Grid, IconButton, Stack, Toolbar } from '@mui/material'
+import { AppBar, Button, Dialog, DialogContent, DialogTitle, Grid, IconButton, Stack, Toolbar } from '@mui/material'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import UploadFileForm from '../forms/UploadFileForm'
 
 export default function FilesList() {
     const { libraryName } = useParams()
     const [files, setFiles] = React.useState([])
+    const [uploadFileOpen, setUploadFileOpen] = React.useState(false)
     const auth = useRecoilValue(atoms.AuthAtom)
 
     const loadFiles = () => {
@@ -31,6 +33,7 @@ export default function FilesList() {
                 <Toolbar sx={{justifyContent: 'end'}}>
                     <Button
                         startIcon={<UploadFileIcon />}
+                        onClick={() => setUploadFileOpen(true)}
                         variant='outlined'
                         sx={{mr: 2}}>
                         New file
@@ -47,6 +50,14 @@ export default function FilesList() {
                     </Grid>
                 )}
             </Grid>
+            <Dialog maxWidth={'sm'} fullWidth open={uploadFileOpen} onClose={() => setUploadFileOpen(false)}>
+                <DialogTitle>
+                    Upload File
+                </DialogTitle>
+                <DialogContent>
+                    <UploadFileForm library={libraryName}/>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }

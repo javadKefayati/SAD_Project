@@ -4,7 +4,7 @@ import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogCo
 import AddLibraryForm from '../components/forms/AddLibraryForm';
 import authorizedAxios from '../components/authorizedAxios';
 import atoms from '../Atoms';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState} from 'recoil';
 import urls from '../data/urls';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ const drawerWidth = 240;
 
 export default function DashboardPage() {
     const [addLibraryOpen, setAddLibraryOpen] = React.useState(false)
-    const [libraries, setLibraries] = React.useState([])
+    const [libraries, setLibraries] = useRecoilState(atoms.LibraryAtom)
     const [type, setType] = React.useState('all')
     const auth = useRecoilValue(atoms.AuthAtom)
     const navigate = useNavigate()

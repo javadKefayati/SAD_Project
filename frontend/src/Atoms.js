@@ -7,8 +7,14 @@ const AuthAtom = atom({
     },
 })
 
+const LibraryAtom = atom({
+    key: 'LibraryAtom',
+    default: []
+})
+
 const atoms = {
-    AuthAtom
+    AuthAtom,
+    LibraryAtom
 }
 
 export default atoms
