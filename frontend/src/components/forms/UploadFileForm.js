@@ -8,12 +8,14 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { LoadingButton } from '@mui/lab'
 
-export default function UploadFileForm({ library, description = '', submitted }) {
+export default function UploadFileForm({ file, library, submitted }) {
 
-    const [libraryState, setLibraryState] = React.useState(library)
+    const isEdit = file != null && file != undefined
+    const libraryProp = library ? library : file ? file.library.name : ''
+    const [libraryState, setLibraryState] = React.useState(libraryProp)
     const [libraries, setLibraries] = useRecoilState(atoms.LibraryAtom)
-    const [descriptionState, setDescriptionState] = React.useState(description)
-    const [metaDataState, setMetaDataState] = React.useState({})
+    const [descriptionState, setDescriptionState] = React.useState(file ? file.description : '')
+    const [metaDataState, setMetaDataState] = React.useState(file ? file.meta_data : {})
     const [fileState, setFileState] = React.useState()
     const [tempKey, setTempKey] = React.useState('')
     const [tempValue, setTempValue] = React.useState('')
@@ -47,35 +49,49 @@ export default function UploadFileForm({ library, description = '', submitted })
 
     const submitClicked = () => {
         setLoading(true)
-        const data = new FormData()
-        data.append('file', fileState)
-        data.append('library', library)
-        data.append('description', descriptionState)
-        data.append('meta_data', metaDataState)
-        authorizedAxios(auth).put(urls.uploadFile, data).then(res => {
-            console.log(res)
-            setLoading(false)
-            if(submitted)
-                submitted(res.data.file)
-        }).catch(err => {console.log(err.response)})
+        if (isEdit) {
+            const url = urls.crudFile.replace("<pk>", file.id)
+            authorizedAxios(auth).post(url, {
+                description: descriptionState,
+                meta_data: JSON.stringify(metaDataState)
+            }).then(res => {
+                setLoading(false)
+                if(submitted)
+                    submitted(res.data)
+            }).catch(err => { console.log(err.response) })
+        } else {
+            const data = new FormData()
+            data.append('file', fileState)
+            data.append('library', libraryState)
+            data.append('description', descriptionState)
+            data.append('meta_data', JSON.stringify(metaDataState))
+            authorizedAxios(auth).put(urls.uploadFile, data).then(res => {
+                setLoading(false)
+                if (submitted)
+                    submitted(res.data.file)
+            }).catch(err => { console.log(err.response) })
+        }
     }
 
     return (
         <Stack spacing={4}>
             <Grid container spacing={4}>
-                <Grid item xs={6}>
-                    <Typography variant='subtitle1' sx={{ mb: 1 }}>File</Typography>
-                    <TextField
-                        type="file"
-                        fullWidth
-                        onChange={(e) => setFileState(e.target.files[0])}
-                    />
-                </Grid>
-                <Grid item xs={6}>
+                {!isEdit &&
+                    <Grid item xs={6}>
+                        <Typography variant='subtitle1' sx={{ mb: 1 }}>File</Typography>
+                        <TextField
+                            type="file"
+                            fullWidth
+                            onChange={(e) => setFileState(e.target.files[0])}
+                        />
+                    </Grid>
+                }
+                <Grid item xs={isEdit ? 12 : 6}>
                     <Typography variant='subtitle1' sx={{ mb: 1 }}>Library</Typography>
                     <Select
                         fullWidth
                         value={libraryState}
+                        disabled={isEdit}
                         onChange={(e) => setLibraryState(e.target.value)}
                     >
                         {libraries.map(item => <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>)}
@@ -95,7 +111,7 @@ export default function UploadFileForm({ library, description = '', submitted })
             </Box>
             <Box>
                 <Typography variant='subtitle1' sx={{ mb: 1 }}>Meta data</Typography>
-                <Grid container columnSpacing={2} sx={{mb: 1}}>
+                <Grid container columnSpacing={2} sx={{ mb: 1 }}>
                     {Object.keys(metaDataState).map(item =>
                         <React.Fragment key={item}>
                             <Grid item xs={4.8}>

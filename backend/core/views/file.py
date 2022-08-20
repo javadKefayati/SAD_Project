@@ -1,3 +1,5 @@
+import json
+from multiprocessing import context
 from nis import cat
 import os
 from rest_framework.views import APIView
@@ -19,6 +21,8 @@ class UploadFile(APIView):
         library = Library.objects.filter(user=owner, name=request.data.get('library', None))
         description = request.data.get('description', '')
         meta_data = request.data.get('meta_data', None)
+        if meta_data:
+            meta_data = json.loads(meta_data)
         if not file:
             return Response({"message": "no file is found"}, status=401)
         if not library:
@@ -47,7 +51,7 @@ class ViewFiles(APIView):
         return Response(FileSerializer(library.file_set, many=True, context={'request': request}).data, status=200)
 
 class CRUDFile(APIView):
-    http_method_names = ['delete', 'get']
+    http_method_names = ['delete', 'get', 'post']
 
     def delete(self, request, pk):
         file = File.objects.filter(pk=pk, owner=request.user)
@@ -74,6 +78,21 @@ class CRUDFile(APIView):
         response['Content-Length'] = file.file.size
         response['Content-Disposition'] = 'attachment; filename="%s"' % file.file.name
         return response
+
+    
+    def post(self, request, pk):
+        file = File.objects.filter(pk=pk, owner=request.user)
+        if not file:
+            return Response({"message": "file not found"}, status=404)
+        file = file.get()
+        description = request.data.get('description', '')
+        meta_data = request.data.get('meta_data', None)
+        if meta_data:
+            meta_data = json.loads(meta_data)
+        file.description = description
+        file.meta_data = meta_data
+        file.save()
+        return Response(FileSerializer(file, context={"request": request}).data, status=200)
 
 class ShareFile(APIView):
     http_method_names =['get', 'post', 'delete']

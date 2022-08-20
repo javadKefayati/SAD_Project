@@ -5,7 +5,7 @@ import ShareIcon from '@mui/icons-material/Share'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 
-export default function FileItem({ name, file, owner, description, size, can_edit, onDelete, onDownload, onShare }) {
+export default function FileItem({ name, file, owner, description, size, can_edit, onDelete, onDownload, onShare, onEdit }) {
     return (
         <Card variant="outlined">
             <CardContent>
@@ -27,7 +27,7 @@ export default function FileItem({ name, file, owner, description, size, can_edi
                         <IconButton size='large' onClick={onDelete}>
                             <DeleteIcon />
                         </IconButton>
-                        <IconButton size='large'>
+                        <IconButton size='large' onClick={onEdit}>
                             <EditIcon />
                         </IconButton>
                         <IconButton size='large' onClick={onShare}>

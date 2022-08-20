@@ -70,6 +70,16 @@ export default function FilesList() {
         })
     }
 
+    const editClicked = (file) => {
+        setSelectedFile(file)
+        setOpenDialog('edit')
+    }
+
+    const updateFile = (newFile) => {
+        setFiles([...files.filter(item => item.id !== newFile.id), newFile])
+        setOpenDialog('')
+    }
+
     React.useEffect(() => loadFiles(), [])
     return (
         <>
@@ -95,6 +105,7 @@ export default function FilesList() {
                             onDelete={() => deleteClicked(item)}
                             onDownload={() => downloadClicked(item)}
                             onShare={() => shareClicked(item)}
+                            onEdit={() => editClicked(item)}
                         />
                     </Grid>
                 )}
@@ -138,6 +149,14 @@ export default function FilesList() {
                         Delete
                     </LoadingButton>
                 </DialogActions>
+            </Dialog>
+            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'edit'} onClose={() => setOpenDialog('')}>
+                <DialogTitle>
+                    Edit File
+                </DialogTitle>
+                <DialogContent>
+                    <UploadFileForm file={selectedFile} submitted={updateFile}/>
+                </DialogContent>
             </Dialog>
         </>
     )
