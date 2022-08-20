@@ -41,3 +41,8 @@ class FileAccess(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     file = models.ForeignKey(to=File, on_delete=models.CASCADE)
     access_type = models.CharField(max_length=2, choices=ACCESS_TYPES)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'file', 'access_type'], name='user_file_type_fileaccess')
+        ]

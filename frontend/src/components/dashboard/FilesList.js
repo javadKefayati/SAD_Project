@@ -10,7 +10,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import UploadFileForm from '../forms/UploadFileForm'
 import { LoadingButton } from '@mui/lab'
-import fileDownload from 'js-file-download'
+import ShareFilForm from '../forms/ShareFileForm'
 
 export default function FilesList() {
     const { libraryName } = useParams()
@@ -44,7 +44,7 @@ export default function FilesList() {
         setLoading(true)
         const url = urls.crudFile.replace("<pk>", selectedFile.id)
         authorizedAxios(auth).delete(url).then(res => {
-            setFiles(files.filter(item => item.id != selectedFile.id))
+            setFiles(files.filter(item => item.id !== selectedFile.id))
             setSelectedFile(null)
             setLoading(false)
             setOpenDialog('')
@@ -52,7 +52,8 @@ export default function FilesList() {
     }
 
     const shareClicked = (file) => {
-
+        setSelectedFile(file)
+        setOpenDialog('share')
     }
 
     const downloadClicked = (file) => {
@@ -104,6 +105,14 @@ export default function FilesList() {
                 </DialogTitle>
                 <DialogContent>
                     <UploadFileForm library={libraryName} submitted={addNewFile} />
+                </DialogContent>
+            </Dialog>
+            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'share'} onClose={() => setOpenDialog('')}>
+                <DialogTitle>
+                    Share File
+                </DialogTitle>
+                <DialogContent>
+                    <ShareFilForm {...selectedFile} />
                 </DialogContent>
             </Dialog>
             <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'delete'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>

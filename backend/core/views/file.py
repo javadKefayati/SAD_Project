@@ -1,12 +1,13 @@
-import mimetypes
+from nis import cat
 import os
 from rest_framework.views import APIView
 from django.http import FileResponse
+from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 
-from core.serializers import FileSerializer
-from core.models import File, Library
+from core.serializers import FileSerializer, UserSerializer
+from core.models import ACCESS_TYPES, File, FileAccess, Library
 
 class UploadFile(APIView):
     http_method_names = ['put']
@@ -74,8 +75,33 @@ class ShareFile(APIView):
     http_method_names =['get', 'post']
 
     def get(self, request, pk):
-        file = File.objects.prefetch_related('filelink_set').filter(pk=pk, owner=request.user)
+        file = File.objects.prefetch_related('fileaccess_set', 'fileaccess_set__user').filter(pk=pk, owner=request.user)
         if not file:
             return Response({"message": "file not found"}, status=404)
         file = file.get()
-        return Response(FileSerializer(file, context={'request': request}).data, status=200)
+        accessed_users = map(lambda item: item.user, file.fileaccess_set.all())
+        return Response(UserSerializer(accessed_users, many=True).data, status=200)
+    
+
+    def post(sefl, request, pk):
+        file = File.objects.filter(pk=pk, owner=request.user)
+        accesssed_user = User.objects.filter(username=request.data.get("username", ''))
+        if not file:
+            return Response({"message": "file not found"}, status=404)
+        if not accesssed_user:
+            return Response({"message": "user not found"}, status=404)
+        
+        access_type = request.data.get('access_type', '')
+        if access_type not in map(lambda x:x[0], ACCESS_TYPES):
+            return Response({"message": "invalid access type"}, status=401)
+        
+        file = file.get()
+        accesssed_user = accesssed_user.get()
+        try:
+            file.fileaccess_set.create(
+                user=accesssed_user,
+                access_type=access_type
+            )
+        except:
+            return Response({"message": "access already granted"}, status=400)
+        return Response({"message": "access granted", "user": UserSerializer(accesssed_user).data}, status=200)
