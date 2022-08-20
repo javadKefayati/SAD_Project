@@ -92,7 +92,7 @@ class ShareFile(APIView):
         accesssed_user = User.objects.filter(username=request.data.get("username", ''))
         if not file:
             return Response({"message": "file not found"}, status=404)
-        if not accesssed_user:
+        if not accesssed_user or accesssed_user.get().id == request.user.id:
             return Response({"message": "user not found"}, status=404)
         
         access_type = request.data.get('access_type', '')
