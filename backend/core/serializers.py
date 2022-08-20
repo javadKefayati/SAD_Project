@@ -74,3 +74,7 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'can_edit', 'description', 'meta_data']
+
+
+class FileLinkSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
