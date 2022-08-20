@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import urls from '../../data/urls'
 import authorizedAxios from '../authorizedAxios'
 import { useRecoilValue } from 'recoil'
 import atoms from '../../Atoms'
 import FileItem from '../FileItem'
-import { AppBar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Toolbar, Typography } from '@mui/material'
+import { AppBar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, Toolbar, Typography } from '@mui/material'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import UploadFileForm from '../forms/UploadFileForm'
@@ -19,6 +19,7 @@ export default function FilesList() {
     const [openDialog, setOpenDialog] = React.useState('')
     const [loading, setLoading] = React.useState(false)
     const auth = useRecoilValue(atoms.AuthAtom)
+    const navigate = useNavigate()
 
     const loadFiles = () => {
         const url = urls.listFiles.replace("<name>", libraryName)
@@ -63,7 +64,7 @@ export default function FilesList() {
         }).then(res => {
             const blob = new Blob(
                 [res.data],
-                {type: res.headers['content-type']}
+                { type: res.headers['content-type'] }
             )
             const url = window.URL.createObjectURL(blob);
             window.open(url);
@@ -80,21 +81,38 @@ export default function FilesList() {
         setOpenDialog('')
     }
 
+    const deleteLibrary = () => {
+        authorizedAxios(auth).delete(urls.deleteLibrary, {
+            data: { "name": libraryName }
+        }).then(res => {
+            navigate('/home')
+        })
+    }
+
     React.useEffect(() => loadFiles(), [])
     return (
         <>
             <AppBar position='relative' color='transparent'>
-                <Toolbar sx={{ justifyContent: 'end' }}>
-                    <Button
-                        startIcon={<UploadFileIcon />}
-                        onClick={() => setOpenDialog('upload')}
-                        variant='outlined'
-                        sx={{ mr: 2 }}>
-                        New file
-                    </Button>
-                    <Button startIcon={<DeleteForeverIcon />} variant='outlined'>
-                        Delete library
-                    </Button>
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                    <Typography variant='h6'>
+                        {libraryName}
+                    </Typography>
+                    <Stack direction={'row'}>
+                        <Button
+                            startIcon={<UploadFileIcon />}
+                            onClick={() => setOpenDialog('upload')}
+                            variant='outlined'
+                            sx={{ mr: 2 }}>
+                            New file
+                        </Button>
+                        <Button
+                            onClick={() => setOpenDialog('deleteLibrary')}
+                            startIcon={<DeleteForeverIcon />}
+                            variant='outlined'
+                        >
+                            Delete library
+                        </Button>
+                    </Stack>
                 </Toolbar>
             </AppBar>
             <Grid container sx={{ p: 2 }} spacing={2}>
@@ -155,8 +173,32 @@ export default function FilesList() {
                     Edit File
                 </DialogTitle>
                 <DialogContent>
-                    <UploadFileForm file={selectedFile} submitted={updateFile}/>
+                    <UploadFileForm file={selectedFile} submitted={updateFile} />
                 </DialogContent>
+            </Dialog>
+            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'deleteLibrary'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>
+                <DialogTitle>
+                    Delete library
+                </DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                        Are you sure you want to delete THIS LIBRARY and ALL RELATED FILES? {'\n'}
+                        This action cannot be undone.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant='text' onClick={() => setOpenDialog('')}>
+                        Cancel
+                    </Button>
+                    <LoadingButton
+                        loading={loading}
+                        variant='contained'
+                        color='error'
+                        onClick={deleteLibrary}
+                    >
+                        Delete
+                    </LoadingButton>
+                </DialogActions>
             </Dialog>
         </>
     )

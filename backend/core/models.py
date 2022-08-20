@@ -1,7 +1,9 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 from jsonfield import JSONField
 from backend.settings import MEDIA_ROOT
+from django.dispatch import receiver
 
 
 DATA_TYPES = [
@@ -32,7 +34,7 @@ class Library(models.Model):
 class File(models.Model):
     owner = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True)
     file = models.FileField(upload_to=MEDIA_ROOT)
-    library = models.ForeignKey(to=Library, null=True, on_delete=models.SET_NULL)
+    library = models.ForeignKey(to=Library, null=True, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
     meta_data = JSONField()
 
@@ -46,3 +48,11 @@ class FileAccess(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'file', 'access_type'], name='user_file_type_fileaccess')
         ]
+
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)

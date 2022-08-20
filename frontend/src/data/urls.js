@@ -4,6 +4,7 @@ const urls = {
     register: BASE_URL + "api/auth/register",
     getMe: BASE_URL + "api/auth/get-me",
     createLibrary: BASE_URL + "api/library/create",
+    deleteLibrary: BASE_URL + "api/library/delete",
     listLibraries: BASE_URL + "api/library/list",
     listFiles: BASE_URL + "api/library/<name>/files",
     uploadFile: BASE_URL + "api/file/upload",
