@@ -12,6 +12,7 @@ import { RecoilRoot } from 'recoil'
 import RecoilNexus from "recoil-nexus";
 import LibrariesList from './components/dashboard/LibrariesList'
 import FilesList from './components/dashboard/FilesList'
+import SharedFilesList from './components/dashboard/SharedFilesList'
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<DashboardPage />}>
             <Route path="home" element={<LibrariesList />} />
             <Route path="library/:libraryName" element={<FilesList />} />
+            <Route path="shared" element={<SharedFilesList />} />
           </Route>
         </Routes>
       </Router>

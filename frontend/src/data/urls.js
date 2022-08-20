@@ -8,6 +8,7 @@ const urls = {
     listFiles: BASE_URL + "api/library/<name>/files",
     uploadFile: BASE_URL + "api/file/upload",
     crudFile: BASE_URL + "api/file/<pk>",
-    shareFile: BASE_URL + "api/file/<pk>/share"
+    shareFile: BASE_URL + "api/file/<pk>/share",
+    sharedList: BASE_URL + "api/library/shared",
 }
 export default urls

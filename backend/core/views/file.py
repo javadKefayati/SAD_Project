@@ -63,8 +63,12 @@ class CRUDFile(APIView):
     def get(self, request, pk):
         file = File.objects.filter(pk=pk, owner=request.user)
         if not file:
-            return Response({"message": "file not found"}, status=404)
-        file = file.get()
+            file = FileAccess.objects.select_related('file').filter(file_id=pk, user=request.user)
+            if not file:
+                return Response({"message": "file not found"}, status=404)
+            file = file.get().file
+        else:
+            file = file.get()
         file_handle = file.file.open()
         response = FileResponse(file_handle)
         response['Content-Length'] = file.file.size
@@ -116,3 +120,12 @@ class ShareFile(APIView):
             fileaccess_obj = fileaccess_obj.get()
             fileaccess_obj.delete()
         return Response({"message": "access revoked"}, status=200)
+
+
+class SharedList(APIView):
+    http_method_names = ['get']
+
+    def get(self, request):
+        file_accesses = FileAccess.objects.select_related('file').filter(user=request.user).all()
+        files = map(lambda item: item.file, file_accesses)
+        return Response(FileSerializer(files, many=True, context={"request": request}).data, status=200)

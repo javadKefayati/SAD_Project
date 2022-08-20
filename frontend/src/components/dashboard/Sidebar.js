@@ -4,10 +4,13 @@ import ImageIcon from '@mui/icons-material/Image';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
+import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import AppsIcon from '@mui/icons-material/Apps';
 import AddIcon from '@mui/icons-material/Add';
+import {useNavigate} from 'react-router-dom'
 
 export default function Sidebar({addLibraryClicked, listItemSelected}) {
+    const navigate = useNavigate()
     return (
         <Stack sx={{py: 2}}>
             <Box sx={{px: 2}}>
@@ -51,6 +54,12 @@ export default function Sidebar({addLibraryClicked, listItemSelected}) {
                         <AudioFileIcon />
                     </ListItemIcon>
                     <ListItemText primary="Audios" />
+                </ListItemButton>
+                <ListItemButton onClick={() => navigate('/shared')}>
+                    <ListItemIcon>
+                        <FolderSharedIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Shared With Me" />
                 </ListItemButton>
             </List>
         </Stack>
