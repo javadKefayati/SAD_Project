@@ -1,5 +1,6 @@
 from dbm.ndbm import library
 from multiprocessing import context
+import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
@@ -43,3 +44,16 @@ class ViewFiles(APIView):
             return Response({"message": "library not found"}, status=404)
         library = library.get()
         return Response(FileSerializer(library.file_set, many=True, context={'request': request}).data, status=200)
+
+class DeleteFile(APIView):
+    http_method_names = ['delete']
+
+    def delete(self, request, pk):
+        file = File.objects.filter(pk=pk, owner=request.user)
+        if not file:
+            return Response({"message": "file not found"}, status=404)
+        file = file.get()
+        if os.path.isfile(file.file.path):
+            os.remove(file.file.path)
+        file.delete()
+        return Response({"message": "deleted successfully"}, status=200)

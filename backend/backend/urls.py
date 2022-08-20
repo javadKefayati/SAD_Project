@@ -38,6 +38,7 @@ urlpatterns = [
 
     
     path('api/file/upload', UploadFile.as_view()),
+    path('api/file/<pk>/delete', DeleteFile.as_view()),
 
     path('api/options/data-types', ViewDataTypes.as_view())
     

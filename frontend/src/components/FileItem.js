@@ -4,11 +4,8 @@ import DownloadIcon from '@mui/icons-material/Download'
 import ShareIcon from '@mui/icons-material/Share'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import atoms from '../Atoms'
-import { useRecoilValue } from 'recoil'
 
-export default function FileItem({ name, file, owner, description, size, can_edit }) {
-    const auth = useRecoilValue(atoms.AuthAtom)
+export default function FileItem({ name, file, owner, description, size, can_edit, onDelete, onDownload, onShare }) {
     return (
         <Card variant="outlined">
             <CardContent>
@@ -27,18 +24,18 @@ export default function FileItem({ name, file, owner, description, size, can_edi
             <CardActions sx={{ justifyContent: 'end', alignItems: 'end' }}>
                 {can_edit &&
                     <>
-                        <IconButton size='large'>
+                        <IconButton size='large' onClick={onDelete}>
                             <DeleteIcon />
                         </IconButton>
                         <IconButton size='large'>
                             <EditIcon />
                         </IconButton>
-                        <IconButton size='large'>
+                        <IconButton size='large' onClick={onShare}>
                             <ShareIcon />
                         </IconButton>
                     </>
                 }
-                <IconButton size='large'>
+                <IconButton size='large' onClick={onDownload}>
                     <DownloadIcon />
                 </IconButton>
             </CardActions>
