@@ -37,13 +37,7 @@ class File(models.Model):
     meta_data = JSONField()
 
 
-class FileLink(models.Model):
-    url = models.SlugField(max_length=100)
+class FileAccess(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     file = models.ForeignKey(to=File, on_delete=models.CASCADE)
     access_type = models.CharField(max_length=2, choices=ACCESS_TYPES)
-    revoked_at = models.DateTimeField(null=True)
-
-
-class LinkAccess(models.Model):
-    url = models.ForeignKey(to=FileLink, on_delete=models.CASCADE)
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)

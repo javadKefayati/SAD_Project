@@ -39,6 +39,7 @@ urlpatterns = [
     
     path('api/file/upload', UploadFile.as_view()),
     path('api/file/<pk>', CRUDFile.as_view()),
+    path('api/file/<pk>/share', ShareFile.as_view()),
 
     path('api/options/data-types', ViewDataTypes.as_view())
     

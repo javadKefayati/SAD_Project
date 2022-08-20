@@ -69,3 +69,13 @@ class CRUDFile(APIView):
         response['Content-Length'] = file.file.size
         response['Content-Disposition'] = 'attachment; filename="%s"' % file.file.name
         return response
+
+class ShareFile(APIView):
+    http_method_names =['get', 'post']
+
+    def get(self, request, pk):
+        file = File.objects.prefetch_related('filelink_set').filter(pk=pk, owner=request.user)
+        if not file:
+            return Response({"message": "file not found"}, status=404)
+        file = file.get()
+        return Response(FileSerializer(file, context={'request': request}).data, status=200)

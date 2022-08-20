@@ -1,9 +1,8 @@
 from django.contrib import admin
 
-from core.models import File, FileLink, Library, LinkAccess
+from core.models import File, FileAccess, Library
 
 # Register your models here.
 admin.site.register(Library)
 admin.site.register(File)
-admin.site.register(FileLink)
-admin.site.register(LinkAccess)
+admin.site.register(FileAccess)
