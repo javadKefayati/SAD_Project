@@ -1,7 +1,7 @@
-from dbm.ndbm import library
-from multiprocessing import context
+import mimetypes
 import os
 from rest_framework.views import APIView
+from django.http import FileResponse
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 
@@ -45,8 +45,8 @@ class ViewFiles(APIView):
         library = library.get()
         return Response(FileSerializer(library.file_set, many=True, context={'request': request}).data, status=200)
 
-class DeleteFile(APIView):
-    http_method_names = ['delete']
+class CRUDFile(APIView):
+    http_method_names = ['delete', 'get']
 
     def delete(self, request, pk):
         file = File.objects.filter(pk=pk, owner=request.user)
@@ -57,3 +57,15 @@ class DeleteFile(APIView):
             os.remove(file.file.path)
         file.delete()
         return Response({"message": "deleted successfully"}, status=200)
+    
+
+    def get(self, request, pk):
+        file = File.objects.filter(pk=pk, owner=request.user)
+        if not file:
+            return Response({"message": "file not found"}, status=404)
+        file = file.get()
+        file_handle = file.file.open()
+        response = FileResponse(file_handle)
+        response['Content-Length'] = file.file.size
+        response['Content-Disposition'] = 'attachment; filename="%s"' % file.file.name
+        return response

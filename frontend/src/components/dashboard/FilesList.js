@@ -10,6 +10,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import UploadFileForm from '../forms/UploadFileForm'
 import { LoadingButton } from '@mui/lab'
+import fileDownload from 'js-file-download'
 
 export default function FilesList() {
     const { libraryName } = useParams()
@@ -41,13 +42,13 @@ export default function FilesList() {
 
     const deleteSelectedFile = () => {
         setLoading(true)
-        const url = urls.deleteFile.replace("<pk>", selectedFile.id)
+        const url = urls.crudFile.replace("<pk>", selectedFile.id)
         authorizedAxios(auth).delete(url).then(res => {
             setFiles(files.filter(item => item.id != selectedFile.id))
             setSelectedFile(null)
             setLoading(false)
             setOpenDialog('')
-        }).catch(err => {setLoading(false)})
+        }).catch(err => { setLoading(false) })
     }
 
     const shareClicked = (file) => {
@@ -55,7 +56,17 @@ export default function FilesList() {
     }
 
     const downloadClicked = (file) => {
-
+        const url = urls.crudFile.replace("<pk>", file.id)
+        authorizedAxios(auth).get(url, {
+            responseType: 'arraybuffer'
+        }).then(res => {
+            const blob = new Blob(
+                [res.data],
+                {type: res.headers['content-type']}
+            )
+            const url = window.URL.createObjectURL(blob);
+            window.open(url);
+        })
     }
 
     React.useEffect(() => loadFiles(), [])
@@ -95,7 +106,7 @@ export default function FilesList() {
                     <UploadFileForm library={libraryName} submitted={addNewFile} />
                 </DialogContent>
             </Dialog>
-            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'delete'} onClose={() => setOpenDialog('')} PaperProps={{sx: {p: 1}}}>
+            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'delete'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>
                 <DialogTitle>
                     Delete file
                 </DialogTitle>
