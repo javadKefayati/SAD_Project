@@ -72,7 +72,7 @@ class CRUDFile(APIView):
         return response
 
 class ShareFile(APIView):
-    http_method_names =['get', 'post']
+    http_method_names =['get', 'post', 'delete']
 
     def get(self, request, pk):
         file = File.objects.prefetch_related('fileaccess_set', 'fileaccess_set__user').filter(pk=pk, owner=request.user)
@@ -83,7 +83,7 @@ class ShareFile(APIView):
         return Response(UserSerializer(accessed_users, many=True).data, status=200)
     
 
-    def post(sefl, request, pk):
+    def post(self, request, pk):
         file = File.objects.filter(pk=pk, owner=request.user)
         accesssed_user = User.objects.filter(username=request.data.get("username", ''))
         if not file:
@@ -105,3 +105,14 @@ class ShareFile(APIView):
         except:
             return Response({"message": "access already granted"}, status=400)
         return Response({"message": "access granted", "user": UserSerializer(accesssed_user).data}, status=200)
+    
+    def delete(self, request, pk):
+        file = File.objects.filter(pk=pk, owner=request.user)
+        if not file:
+            return Response({"message": "file not found"}, status=404)
+        file = file.get()
+        fileaccess_obj = FileAccess.objects.filter(file=file, user__username=request.data.get('username', ''))
+        if fileaccess_obj:
+            fileaccess_obj = fileaccess_obj.get()
+            fileaccess_obj.delete()
+        return Response({"message": "access revoked"}, status=200)
