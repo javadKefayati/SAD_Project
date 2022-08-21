@@ -26,6 +26,16 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name']
 
 
+class AttachmentSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    file = serializers.FileField()
+
+    class Meta:
+        model = FileAttachment
+        fields = ['id', 'type', 'file']
+
+
 class FileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     file = serializers.FileField()
@@ -36,6 +46,7 @@ class FileSerializer(serializers.ModelSerializer):
     can_edit = serializers.SerializerMethodField('get_can_edit')
     description = serializers.CharField()
     meta_data = serializers.JSONField()
+    fileattachment_set = AttachmentSerializer(many=True)
 
     @staticmethod
     def get_library(file: File):
@@ -74,15 +85,4 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'can_edit', 'description', 'meta_data']
-
-
-
-class AttachmentSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    type = serializers.CharField()
-    file = serializers.FileField()
-
-    class Meta:
-        model = FileAttachment
-        fields = ['id', 'type', 'file']
+        fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'can_edit', 'description', 'meta_data', 'fileattachment_set']

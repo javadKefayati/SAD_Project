@@ -23,7 +23,7 @@ export default function UploadFileForm({ file, library, submitted }) {
     const [attachmentTypes, setAttachmentTypes] = React.useState([])
     const [tempType, setTempType] = React.useState('')
     const [tempAttachment, setTempAttachment] = React.useState()
-    const [attachments, setAttachments] = React.useState([])
+    const [attachments, setAttachments] = React.useState(file ? file.fileattachment_set : [])
 
     const auth = useRecoilValue(atoms.AuthAtom)
 
@@ -36,7 +36,7 @@ export default function UploadFileForm({ file, library, submitted }) {
         authorizedAxios(auth).get(urls.attachmentTypes + `?name=${libraryProp}`).then(res => {
             setAttachmentTypes(res.data)
         })
-    })
+    }, [])
 
     const addMetaData = () => {
         if (tempKey && tempValue) {
@@ -55,33 +55,43 @@ export default function UploadFileForm({ file, library, submitted }) {
     }
 
     const addAttachment = () => {
-        const ids = attachments.map(item => item.id)
-        const maxId = Math.max(...ids)
         if (tempType && tempAttachment) {
-            setAttachments([...attachments, {
-                id: maxId + 1,
-                type: tempType,
-                file: tempAttachment
-            }])
-            setTempType('')
-            setTempAttachment(null)
+            const data = new FormData()
+            data.append('file', tempAttachment)
+            data.append('type', tempType)
+            authorizedAxios(auth).put(urls.uploadAttachment, data).then(res => {
+                setAttachments([...attachments, res.data.attachment])
+                setTempType('')
+                setTempAttachment(null)
+            }).catch(err => { console.log(err.response) })
         }
     }
 
     const removeAttachment = (id) => {
-        setAttachments(attachments.filter(item => item.id !== id))
+        authorizedAxios(auth).delete(urls.attachments, {
+            data: {id: id}
+        }).then(res => {
+            setAttachments(attachments.filter(item => item.id !== id))
+        })
     }
 
     const submitClicked = () => {
-        //TODO: add attachments
         setLoading(true)
         if (isEdit) {
             const url = urls.crudFile.replace("<pk>", file.id)
             authorizedAxios(auth).post(url, {
                 description: descriptionState,
-                meta_data: JSON.stringify(metaDataState)
+                meta_data: JSON.stringify(metaDataState),
             }).then(res => {
                 setLoading(false)
+                for(const item of attachments) {
+                    authorizedAxios(auth).post(urls.attachments, {
+                        file_id: file.id,
+                        attachment_id: item.id
+                    }).then(res => {
+                        console.log(res.data)
+                    })
+                }
                 if (submitted)
                     submitted(res.data)
             }).catch(err => { console.log(err.response) })
@@ -93,6 +103,16 @@ export default function UploadFileForm({ file, library, submitted }) {
             data.append('meta_data', JSON.stringify(metaDataState))
             authorizedAxios(auth).put(urls.uploadFile, data).then(res => {
                 setLoading(false)
+                let file_id = res.data.file.id
+                for(const item of attachments) {
+                    console.log("Test!")
+                    authorizedAxios(auth).post(urls.attachments, {
+                        file_id: file_id,
+                        attachment_id: item.id
+                    }).then(res => {
+                        console.log(res.data)
+                    })
+                }
                 if (submitted)
                     submitted(res.data.file)
             }).catch(err => { console.log(err.response) })
@@ -100,7 +120,16 @@ export default function UploadFileForm({ file, library, submitted }) {
     }
 
     const downloadAttachment = (id) => {
-        //TODO
+        authorizedAxios(auth).get(urls.attachments, {
+            params: {id: id}
+        }).then(res => {
+            const blob = new Blob(
+                [res.data],
+                { type: res.headers['content-type'] }
+            )
+            const url = window.URL.createObjectURL(blob);
+            window.open(url);
+        })
     }
 
     return (
@@ -194,7 +223,10 @@ export default function UploadFileForm({ file, library, submitted }) {
                     {attachments.map(item =>
                         <React.Fragment key={item}>
                             <Grid item xs={9.6}>
-                                <Button fullWidth onClick={() => downloadAttachment(item.id)}>
+                                <Button
+                                    fullWidth
+                                    onClick={() => downloadAttachment(item.id)}
+                                >
                                     {item.type}
                                 </Button>
                             </Grid>

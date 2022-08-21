@@ -38,6 +38,9 @@ urlpatterns = [
     path('api/library/shared', SharedList.as_view()),
     path('api/library/attachment-types', AttachmentTypes.as_view()),
 
+    path('api/attachment', Attachments.as_view()),
+    path('api/attachment/upload', UploadAttachment.as_view()),
+
     
     path('api/file/upload', UploadFile.as_view()),
     path('api/file/<pk>', CRUDFile.as_view()),

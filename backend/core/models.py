@@ -39,7 +39,7 @@ class Library(models.Model):
 
 
 class File(models.Model):
-    owner = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True)
+    owner = models.ForeignKey(to=User, on_delete=models.PROTECT, null=True)
     file = models.FileField(upload_to=MEDIA_ROOT)
     library = models.ForeignKey(to=Library, null=True, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
@@ -57,7 +57,8 @@ class FileAccess(models.Model):
         ]
 
 class FileAttachment(models.Model):
-    related = models.ForeignKey(to=File, on_delete=models.CASCADE)
+    related = models.ForeignKey(to=File, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(to=User, on_delete=models.CASCADE)
     type = models.CharField(max_length=50)
     file = models.FileField(upload_to=MEDIA_ROOT)
 

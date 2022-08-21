@@ -151,23 +151,20 @@ class SharedList(APIView):
 
 
 class Attachments(APIView):
-    http_method_names = ['get', 'put', 'delete']
-    parser_classes = [MultiPartParser]
+    http_method_names = ['get', 'delete', 'post']
 
     def get(self, request):
-        file = File.objects.filter(pk=request.query_params.get('file_id', None))
-        if not file:
-            return Response({"message": "File not found"}, status=404)
-        file = file.get()
-        if file.user_id != request.user.id:
-            access = FileAccess.objects.filter(file=file, user=request.user)
-            if not access:
-                return Response({"message": "access denied"}, status=403)
-        attachment_id = request.query_params.get('attachment_id', None)
-        attachment = FileAttachment.objects.filter(pk=attachment_id, file=file)
+        attachment_id = request.query_params.get('id', None)
+        attachment = FileAttachment.objects.filter(pk=attachment_id, related__isnull=False)
         if not attachment:
             return Response({"message": "Attachment not found"}, status=404)
         attachment = attachment.get()
+        file = attachment.related
+        if file.owner_id != request.user.id:
+            access = FileAccess.objects.filter(file=file, user=request.user)
+            if not access:
+                return Response({"message": "access denied"}, status=403)
+        
         file_handle = attachment.file.open()
         response = FileResponse(file_handle)
         response['Content-Length'] = attachment.file.size
@@ -175,36 +172,46 @@ class Attachments(APIView):
         return response
     
 
-    def put(self, request):
-        file = request.data['file']
-        related = File.objects.filter(pk=request.data.get('file_id', None), user=request.user)
-        type = request.data.get('type', '')
-        if not file:
-            return Response({"message": "No file is found"}, status=401)
-        if not related:
-            return Response({"message": "Related file not found"}, status=401)
-        file = file.get()
-        library_type = file.library.get().data_type
-        if type not in ATTACHMENT_TYPES[library_type]:
-            return Response({"message": "Invalid attachment type"}, status=401)
-
-        
-        attachment_object = FileAttachment(
-            file=file,
-            type=type,
-            related=related
-        )
-        attachment_object.save()
-        return Response({"message": "success", "file": AttachmentSerializer(attachment_object).data}, status=200)
-    
-
     def delete(self, request):
-        file = File.objects.filter(pk=request.data.get('file_id', None), owner=request.user)
-        if not file:
-            return Response({"message": "File not found"}, status=404)
-        file = file.get()
-        attachment = FileAttachment.objects.filter(file=file, pk=request.data.get('attachment_id', None))
+        attachment = FileAttachment.objects.filter(pk=request.data.get('id', None), owner=request.user)
         if not attachment:
             return Response({"message": "Attachment not found"}, status=404)
         attachment.get().delete()
         return Response({"message": "successfully deleted"}, status=200)
+    
+
+    def post(self, request):
+        file = File.objects.filter(pk=request.data.get('file_id', None), owner=request.user)
+        if not file:
+            return Response({"message": "File not found"}, status=404)
+        file = file.get()
+        library_type = file.library.data_type
+        attachment = FileAttachment.objects.filter(pk=request.data.get('attachment_id', None), owner=request.user, related__isnull=True)
+        if not attachment:
+            return Response({"message": "Attachment not found"}, status=404)
+        attachment = attachment.get()
+        if attachment.type not in ATTACHMENT_TYPES[library_type]:
+            return Response({"message": "Invalid attachment type"}, status=400)
+        attachment.related = file
+        attachment.save()
+        return Response({"message": "Successfully added to file"}, status=200)
+
+
+class UploadAttachment(APIView):
+    http_method_names = ['put']
+    parser_classes = [MultiPartParser]
+
+    def put(self, request):
+        file = request.data['file']
+        type = request.data.get('type', '')
+        owner = request.user
+        if not file:
+            return Response({"message": "No file is found"}, status=401)
+        
+        attachment_object = FileAttachment(
+            file=file,
+            type=type,
+            owner=owner
+        )
+        attachment_object.save()
+        return Response({"message": "success", "attachment": AttachmentSerializer(attachment_object).data}, status=200)
