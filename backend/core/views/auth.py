@@ -44,3 +44,11 @@ class GetMe(APIView):
     def get(self, request):
         user = request.user
         return Response(UserSerializer(user).data, status=200)
+
+
+class Logout(APIView):
+    http_method_names = ['post']
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response(status=200)

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Sidebar from '../components/dashboard/Sidebar';
-import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogContent, DialogTitle } from '@mui/material';
+import { Dialog, Typography, CssBaseline, Toolbar, AppBar, Drawer, Box, DialogContent, DialogTitle, Button } from '@mui/material';
 import AddLibraryForm from '../components/forms/AddLibraryForm';
 import authorizedAxios from '../components/authorizedAxios';
 import atoms from '../Atoms';
@@ -41,6 +41,12 @@ export default function DashboardPage() {
         }
     }
 
+    const logoutClicked = () => {
+        authorizedAxios(auth).post(urls.logout).then(res => {
+            navigate("/login")
+        })
+    }
+
     React.useEffect(() => loadLibraries('all'),[])
 
     return (
@@ -48,10 +54,13 @@ export default function DashboardPage() {
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
                 <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-                    <Toolbar>
+                    <Toolbar sx={{justifyContent: 'space-between'}}>
                         <Typography variant="h6" noWrap component="div">
                             Share Drive
                         </Typography>
+                        <Button variant="outlined" onClick={logoutClicked} sx={{color: '#ffffff'}}>
+                            Logout
+                        </Button>
                     </Toolbar>
                 </AppBar>
                 <Drawer

@@ -22,6 +22,7 @@ from core.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', rest_views.obtain_auth_token, name='api-token-auth'),
+    path('logout', Logout.as_view()),
 
 
     path('api/auth/register', RegisterUser.as_view()),
