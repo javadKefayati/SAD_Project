@@ -5,12 +5,16 @@ import authorizedAxios from '../authorizedAxios'
 import { useRecoilValue } from 'recoil'
 import atoms from '../../Atoms'
 import FileItem from '../FileItem'
-import { AppBar, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, Toolbar, Typography } from '@mui/material'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import UploadFileForm from '../forms/UploadFileForm'
 import { LoadingButton } from '@mui/lab'
 import ShareFilForm from '../forms/ShareFileForm'
+import styled from 'styled-components'
+import { unstable_styleFunctionSx } from '@mui/system';
+
+const Image = styled('img')(unstable_styleFunctionSx)
 
 export default function FilesList() {
     const { libraryName } = useParams()
@@ -115,91 +119,127 @@ export default function FilesList() {
                     </Stack>
                 </Toolbar>
             </AppBar>
-            <Grid container sx={{ p: 2 }} spacing={2}>
-                {files.map(item =>
-                    <Grid key={item.id} item xs={6} md={4} xl={3}>
-                        <FileItem
-                            {...item}
-                            onDelete={() => deleteClicked(item)}
-                            onDownload={() => downloadClicked(item)}
-                            onShare={() => shareClicked(item)}
-                            onEdit={() => editClicked(item)}
-                        />
+            {files.length === 0 &&
+                <Box
+                    sx={{
+                        transform: 'translate(-20%, -50%)',
+                        top: '50%',
+                        left: '50%',
+                        position: 'absolute',
+                        color: '#aaaaaa',
+                        opacity: '0.5',
+                        textAlign: 'center'
+                    }}
+                >
+                    <Image
+                        src={"/icons/no-files.gif"}
+                        alt="404 not found"
+                        sx={{
+                            maxWidth: {
+                                xs: '150px',
+                                sm: '200px',
+                                md: '300px',
+                                lg: '400px'
+                            }
+                        }}
+                    />
+                    <Typography
+                        variant="h5"
+                        sx={{ color: '#4F5D73' }}
+                    >
+                        No files found
+                    </Typography>
+                </Box>
+            }
+            {files.length !== 0 &&
+                <>
+                    <Grid container sx={{ p: 2 }} spacing={2}>
+                        {files.map(item =>
+                            <Grid key={item.id} item xs={6} md={4} xl={3}>
+                                <FileItem
+                                    {...item}
+                                    onDelete={() => deleteClicked(item)}
+                                    onDownload={() => downloadClicked(item)}
+                                    onShare={() => shareClicked(item)}
+                                    onEdit={() => editClicked(item)}
+                                />
+                            </Grid>
+                        )}
                     </Grid>
-                )}
-            </Grid>
-            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'upload'} onClose={() => setOpenDialog('')}>
-                <DialogTitle>
-                    Upload File
-                </DialogTitle>
-                <DialogContent>
-                    <UploadFileForm library={libraryName} submitted={addNewFile} />
-                </DialogContent>
-            </Dialog>
-            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'share'} onClose={() => setOpenDialog('')}>
-                <DialogTitle>
-                    Share File
-                </DialogTitle>
-                <DialogContent>
-                    <ShareFilForm {...selectedFile} />
-                </DialogContent>
-            </Dialog>
-            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'delete'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>
-                <DialogTitle>
-                    Delete file
-                </DialogTitle>
-                <DialogContent>
-                    <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-                        Are you sure you want to delete {selectedFile ? selectedFile.name : ''}? {'\n'}
-                        This action cannot be undone.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant='text' onClick={() => setOpenDialog('')}>
-                        Cancel
-                    </Button>
-                    <LoadingButton
-                        loading={loading}
-                        variant='contained'
-                        color='error'
-                        onClick={deleteSelectedFile}
-                    >
-                        Delete
-                    </LoadingButton>
-                </DialogActions>
-            </Dialog>
-            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'edit'} onClose={() => setOpenDialog('')}>
-                <DialogTitle>
-                    Edit File
-                </DialogTitle>
-                <DialogContent>
-                    <UploadFileForm file={selectedFile} submitted={updateFile} />
-                </DialogContent>
-            </Dialog>
-            <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'deleteLibrary'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>
-                <DialogTitle>
-                    Delete library
-                </DialogTitle>
-                <DialogContent>
-                    <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-                        Are you sure you want to delete THIS LIBRARY and ALL RELATED FILES? {'\n'}
-                        This action cannot be undone.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant='text' onClick={() => setOpenDialog('')}>
-                        Cancel
-                    </Button>
-                    <LoadingButton
-                        loading={loading}
-                        variant='contained'
-                        color='error'
-                        onClick={deleteLibrary}
-                    >
-                        Delete
-                    </LoadingButton>
-                </DialogActions>
-            </Dialog>
+                    <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'upload'} onClose={() => setOpenDialog('')}>
+                        <DialogTitle>
+                            Upload File
+                        </DialogTitle>
+                        <DialogContent>
+                            <UploadFileForm library={libraryName} submitted={addNewFile} />
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'share'} onClose={() => setOpenDialog('')}>
+                        <DialogTitle>
+                            Share File
+                        </DialogTitle>
+                        <DialogContent>
+                            <ShareFilForm {...selectedFile} />
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'delete'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>
+                        <DialogTitle>
+                            Delete file
+                        </DialogTitle>
+                        <DialogContent>
+                            <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                Are you sure you want to delete {selectedFile ? selectedFile.name : ''}? {'\n'}
+                                This action cannot be undone.
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant='text' onClick={() => setOpenDialog('')}>
+                                Cancel
+                            </Button>
+                            <LoadingButton
+                                loading={loading}
+                                variant='contained'
+                                color='error'
+                                onClick={deleteSelectedFile}
+                            >
+                                Delete
+                            </LoadingButton>
+                        </DialogActions>
+                    </Dialog>
+                    <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'edit'} onClose={() => setOpenDialog('')}>
+                        <DialogTitle>
+                            Edit File
+                        </DialogTitle>
+                        <DialogContent>
+                            <UploadFileForm file={selectedFile} submitted={updateFile} />
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog maxWidth={'sm'} fullWidth open={openDialog === 'deleteLibrary'} onClose={() => setOpenDialog('')} PaperProps={{ sx: { p: 1 } }}>
+                        <DialogTitle>
+                            Delete library
+                        </DialogTitle>
+                        <DialogContent>
+                            <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                Are you sure you want to delete THIS LIBRARY and ALL RELATED FILES? {'\n'}
+                                This action cannot be undone.
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant='text' onClick={() => setOpenDialog('')}>
+                                Cancel
+                            </Button>
+                            <LoadingButton
+                                loading={loading}
+                                variant='contained'
+                                color='error'
+                                onClick={deleteLibrary}
+                            >
+                                Delete
+                            </LoadingButton>
+                        </DialogActions>
+                    </Dialog>
+                </>
+            }
         </>
     )
 }

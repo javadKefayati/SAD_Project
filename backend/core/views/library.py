@@ -6,6 +6,15 @@ from core.serializers import LibrarySerializer
 
 from ..models import DATA_TYPES, Library
 
+
+ATTACHMENT_TYPES = {
+    "image": ["Related image"],
+    "video": ["Subtitle", "Dubbed audio", "Back scenes"],
+    "document": ["Related document", "Index"],
+    "audio": ["Lyrics",]
+}
+
+
 class CreateLibrary(APIView):
     http_method_names = ['post']
 
@@ -54,3 +63,16 @@ class DeleteLibrary(APIView):
         
         library.delete()
         return Response({"message": "successfully deleted library"}, status=200)
+
+
+class AttachmentTypes(APIView):
+    http_method_names = ['get']
+
+    def get(self, request):
+        library_name = request.query_params.get('name', '')
+        library = Library.objects.filter(name=library_name, user=request.user).values_list("data_type", flat=True)
+        if not library:
+            return Response({"message": "library not found"}, status=404)
+        library_type = library.get()
+        
+        return Response(ATTACHMENT_TYPES[library_type], status=200)

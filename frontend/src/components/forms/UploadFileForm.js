@@ -1,4 +1,4 @@
-import { MenuItem, Stack, TextField, Select, Box, Typography, Grid, IconButton } from '@mui/material'
+import { MenuItem, Stack, TextField, Select, Box, Typography, Grid, IconButton, Button } from '@mui/material'
 import * as React from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import atoms from '../../Atoms'
@@ -10,7 +10,7 @@ import { LoadingButton } from '@mui/lab'
 
 export default function UploadFileForm({ file, library, submitted }) {
 
-    const isEdit = file != null && file != undefined
+    const isEdit = file !== null && file !== undefined
     const libraryProp = library ? library : file ? file.library.name : ''
     const [libraryState, setLibraryState] = React.useState(libraryProp)
     const [libraries, setLibraries] = useRecoilState(atoms.LibraryAtom)
@@ -20,6 +20,10 @@ export default function UploadFileForm({ file, library, submitted }) {
     const [tempKey, setTempKey] = React.useState('')
     const [tempValue, setTempValue] = React.useState('')
     const [loading, setLoading] = React.useState(false)
+    const [attachmentTypes, setAttachmentTypes] = React.useState([])
+    const [tempType, setTempType] = React.useState('')
+    const [tempAttachment, setTempAttachment] = React.useState()
+    const [attachments, setAttachments] = React.useState([])
 
     const auth = useRecoilValue(atoms.AuthAtom)
 
@@ -29,6 +33,9 @@ export default function UploadFileForm({ file, library, submitted }) {
                 setLibraries(res.data.libraries)
             })
         }
+        authorizedAxios(auth).get(urls.attachmentTypes + `?name=${libraryProp}`).then(res => {
+            setAttachmentTypes(res.data)
+        })
     })
 
     const addMetaData = () => {
@@ -47,7 +54,26 @@ export default function UploadFileForm({ file, library, submitted }) {
         }
     }
 
+    const addAttachment = () => {
+        const ids = attachments.map(item => item.id)
+        const maxId = Math.max(...ids)
+        if (tempType && tempAttachment) {
+            setAttachments([...attachments, {
+                id: maxId + 1,
+                type: tempType,
+                file: tempAttachment
+            }])
+            setTempType('')
+            setTempAttachment(null)
+        }
+    }
+
+    const removeAttachment = (id) => {
+        setAttachments(attachments.filter(item => item.id !== id))
+    }
+
     const submitClicked = () => {
+        //TODO: add attachments
         setLoading(true)
         if (isEdit) {
             const url = urls.crudFile.replace("<pk>", file.id)
@@ -56,7 +82,7 @@ export default function UploadFileForm({ file, library, submitted }) {
                 meta_data: JSON.stringify(metaDataState)
             }).then(res => {
                 setLoading(false)
-                if(submitted)
+                if (submitted)
                     submitted(res.data)
             }).catch(err => { console.log(err.response) })
         } else {
@@ -71,6 +97,10 @@ export default function UploadFileForm({ file, library, submitted }) {
                     submitted(res.data.file)
             }).catch(err => { console.log(err.response) })
         }
+    }
+
+    const downloadAttachment = (id) => {
+        //TODO
     }
 
     return (
@@ -153,6 +183,51 @@ export default function UploadFileForm({ file, library, submitted }) {
                     </Grid>
                     <Grid item xs={2.4}>
                         <IconButton onClick={addMetaData} color='primary'>
+                            <AddCircleOutlineIcon />
+                        </IconButton>
+                    </Grid>
+                </Grid>
+            </Box>
+            <Box>
+                <Typography variant='subtitle1' sx={{ mb: 1 }}>Attachments</Typography>
+                <Grid container columnSpacing={2} sx={{ mb: 1 }}>
+                    {attachments.map(item =>
+                        <React.Fragment key={item}>
+                            <Grid item xs={9.6}>
+                                <Button fullWidth onClick={() => downloadAttachment(item.id)}>
+                                    {item.type}
+                                </Button>
+                            </Grid>
+                            <Grid item xs={2.4}>
+                                <IconButton color='error' onClick={() => removeAttachment(item.id)}>
+                                    <RemoveCircleOutlineIcon />
+                                </IconButton>
+                            </Grid>
+                        </React.Fragment>
+                    )}
+                </Grid>
+                <Grid container columnSpacing={2}>
+                    <Grid item xs={4.8}>
+                        <Select
+                            fullWidth
+                            size='small'
+                            label="key"
+                            value={tempType}
+                            onChange={(e) => setTempType(e.target.value)}
+                        >
+                            {attachmentTypes.map(item => <MenuItem key={item} value={item}>{item}</MenuItem>)}
+                        </Select>
+                    </Grid>
+                    <Grid item xs={4.8}>
+                        <TextField
+                            fullWidth
+                            size='small'
+                            type='file'
+                            onChange={(e) => setTempAttachment(e.target.files[0])}
+                        />
+                    </Grid>
+                    <Grid item xs={2.4}>
+                        <IconButton onClick={addAttachment} color='primary'>
                             <AddCircleOutlineIcon />
                         </IconButton>
                     </Grid>
