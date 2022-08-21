@@ -4,15 +4,7 @@ from django.db.models.aggregates import Count
 
 from core.serializers import LibrarySerializer
 
-from ..models import DATA_TYPES, Library
-
-
-ATTACHMENT_TYPES = {
-    "image": ["Related image"],
-    "video": ["Subtitle", "Dubbed audio", "Back scenes"],
-    "document": ["Related document", "Index"],
-    "audio": ["Lyrics",]
-}
+from ..models import DATA_TYPES, ATTACHMENT_TYPES, Library
 
 
 class CreateLibrary(APIView):

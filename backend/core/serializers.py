@@ -1,7 +1,8 @@
+from dataclasses import fields
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from core.models import File, Library
+from core.models import File, FileAttachment, Library
 
 class LibrarySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
@@ -74,3 +75,14 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'file', 'name', 'size', 'library', 'owner', 'can_edit', 'description', 'meta_data']
+
+
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    file = serializers.FileField()
+
+    class Meta:
+        model = FileAttachment
+        fields = ['id', 'type', 'file']

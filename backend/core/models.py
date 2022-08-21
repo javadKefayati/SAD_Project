@@ -18,6 +18,13 @@ ACCESS_TYPES = [
     ('w', 'write')
 ]
 
+ATTACHMENT_TYPES = {
+    "image": ["Related image"],
+    "video": ["Subtitle", "Dubbed audio", "Back scenes"],
+    "document": ["Related document", "Index"],
+    "audio": ["Lyrics",]
+}
+
 
 class Library(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
@@ -49,9 +56,19 @@ class FileAccess(models.Model):
             models.UniqueConstraint(fields=['user', 'file', 'access_type'], name='user_file_type_fileaccess')
         ]
 
+class FileAttachment(models.Model):
+    related = models.ForeignKey(to=File, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50)
+    file = models.FileField(upload_to=MEDIA_ROOT)
 
 
 @receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+@receiver(models.signals.post_delete, sender=FileAttachment)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
