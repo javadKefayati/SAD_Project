@@ -1,7 +1,7 @@
 import os
 from django.db import models
 from django.contrib.auth.models import User
-from jsonfield import JSONField
+# from jsonfield import JSONField
 from backend.settings import MEDIA_ROOT
 from django.dispatch import receiver
 
@@ -43,7 +43,7 @@ class File(models.Model):
     file = models.FileField(upload_to=MEDIA_ROOT)
     library = models.ForeignKey(to=Library, null=True, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
-    meta_data = JSONField()
+    meta_data = models.JSONField()
 
 
 class FileAccess(models.Model):
